@@ -111,6 +111,12 @@ body {
   align-items: center;
 }
 
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .miniapp__hero.alt {
   flex-direction: column;
   align-items: flex-start;
@@ -128,6 +134,34 @@ body {
 .hero__value .big {
   font-size: 24px;
   font-weight: 900;
+}
+
+.mascot-chip {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  overflow: hidden;
+  animation: float 4s ease-in-out infinite;
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.35);
+}
+
+.mascot-chip svg {
+  width: 86px;
+  height: 86px;
+  position: relative;
+  z-index: 1;
+}
+
+.mascot-chip .glow {
+  position: absolute;
+  inset: 12px;
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.4), transparent 65%);
+  filter: blur(12px);
 }
 
 .miniapp__actions {
@@ -261,4 +295,14 @@ body {
 
 .big {
   font-size: 22px;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+  }
 }

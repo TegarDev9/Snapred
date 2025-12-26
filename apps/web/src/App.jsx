@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Camera,
   Gift,
@@ -13,140 +13,48 @@ import {
 } from 'lucide-react';
 import { TonConnectButton } from '@tonconnect/ui-react';
 
-const THREE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+const MascotIcon = () => (
+  <svg
+    viewBox="0 0 160 160"
+    className="w-[220px] h-[220px] drop-shadow-[0_15px_40px_rgba(239,68,68,0.45)] animate-bounce-slow"
+    role="img"
+    aria-label="Snapred mascot"
+  >
+    <defs>
+      <linearGradient id="glow" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0%" stopColor="#f87171" stopOpacity="0.95" />
+        <stop offset="60%" stopColor="#ef4444" stopOpacity="0.9" />
+        <stop offset="100%" stopColor="#7f1d1d" stopOpacity="0.85" />
+      </linearGradient>
+      <radialGradient id="face" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
+        <stop offset="70%" stopColor="#fecdd3" stopOpacity="0.85" />
+        <stop offset="100%" stopColor="#f87171" stopOpacity="0.75" />
+      </radialGradient>
+    </defs>
+    <circle cx="80" cy="80" r="72" fill="url(#glow)" />
+    <circle cx="80" cy="78" r="64" fill="url(#face)" stroke="#fb7185" strokeWidth="6" />
+    <rect x="48" y="62" width="64" height="24" rx="12" fill="#0f172a" opacity="0.9" />
+    <circle cx="62" cy="74" r="10" fill="#22d3ee" />
+    <circle cx="98" cy="74" r="10" fill="#22d3ee" />
+    <circle cx="62" cy="74" r="5" fill="#e0f2fe" />
+    <circle cx="98" cy="74" r="5" fill="#e0f2fe" />
+    <path d="M60 104c12 10 28 10 40 0" stroke="#0f172a" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <path d="M40 80c0-28 18-48 40-48s40 20 40 48" stroke="#fecaca" strokeWidth="6" strokeLinecap="round" fill="none" />
+    <path d="M50 52c6-10 16-16 30-16s24 6 30 16" stroke="#fee2e2" strokeWidth="5" strokeLinecap="round" fill="none" />
+  </svg>
+);
 
-const MascotCanvas = () => {
-  const mountRef = useRef(null);
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = THREE_CDN;
-    script.async = true;
-    script.onload = () => initThreeJS();
-    document.body.appendChild(script);
-
-    let scene;
-    let camera;
-    let renderer;
-    let mascotGroup;
-    let animationId;
-
-    const initThreeJS = () => {
-      if (!mountRef.current || !window.THREE) return;
-      const THREE = window.THREE;
-
-      scene = new THREE.Scene();
-      scene.background = null;
-
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
-      camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-      camera.position.z = 5;
-
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      mountRef.current.appendChild(renderer.domElement);
-
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      scene.add(ambientLight);
-
-      const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-      dirLight.position.set(5, 5, 5);
-      scene.add(dirLight);
-
-      const redLight = new THREE.PointLight(0xff0000, 2, 10);
-      redLight.position.set(-2, 2, 2);
-      scene.add(redLight);
-
-      mascotGroup = new THREE.Group();
-
-      const bodyGeo = new THREE.SphereGeometry(1.2, 32, 32);
-      const bodyMat = new THREE.MeshStandardMaterial({
-        color: 0xff0000,
-        roughness: 0.3,
-        metalness: 0.1,
-        emissive: 0x550000,
-        emissiveIntensity: 0.2,
-      });
-      const body = new THREE.Mesh(bodyGeo, bodyMat);
-      mascotGroup.add(body);
-
-      const eyeGeo = new THREE.SphereGeometry(0.35, 32, 32);
-      const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-
-      const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-      leftEye.position.set(-0.4, 0.3, 0.9);
-      mascotGroup.add(leftEye);
-
-      const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-      rightEye.position.set(0.4, 0.3, 0.9);
-      mascotGroup.add(rightEye);
-
-      const pupilGeo = new THREE.SphereGeometry(0.15, 32, 32);
-      const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-
-      const leftPupil = new THREE.Mesh(pupilGeo, pupilMat);
-      leftPupil.position.set(-0.4, 0.35, 1.18);
-      mascotGroup.add(leftPupil);
-
-      const rightPupil = new THREE.Mesh(pupilGeo, pupilMat);
-      rightPupil.position.set(0.4, 0.35, 1.18);
-      mascotGroup.add(rightPupil);
-
-      const earGeo = new THREE.ConeGeometry(0.2, 0.6, 32);
-      const earMat = new THREE.MeshStandardMaterial({ color: 0xcc0000 });
-
-      const leftEar = new THREE.Mesh(earGeo, earMat);
-      leftEar.position.set(-0.8, 1, 0);
-      leftEar.rotation.z = 0.5;
-      mascotGroup.add(leftEar);
-
-      const rightEar = new THREE.Mesh(earGeo, earMat);
-      rightEar.position.set(0.8, 1, 0);
-      rightEar.rotation.z = -0.5;
-      mascotGroup.add(rightEar);
-
-      scene.add(mascotGroup);
-
-      const animate = () => {
-        animationId = requestAnimationFrame(animate);
-
-        if (mascotGroup) {
-          const time = Date.now() * 0.002;
-          mascotGroup.position.y = Math.sin(time) * 0.2;
-          mascotGroup.rotation.y = Math.sin(time * 0.5) * 0.2;
-        }
-
-        renderer.render(scene, camera);
-      };
-      animate();
-    };
-
-    const handleResize = () => {
-      if (mountRef.current && camera && renderer) {
-        const width = mountRef.current.clientWidth;
-        const height = mountRef.current.clientHeight;
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (mountRef.current && mountRef.current.firstChild) {
-        mountRef.current.removeChild(mountRef.current.firstChild);
-      }
-      if (animationId) cancelAnimationFrame(animationId);
-      if (script.parentNode) script.parentNode.removeChild(script);
-    };
-  }, []);
-
-  return <div ref={mountRef} className="w-full h-full" />;
-};
+const MascotSpotlight = () => (
+  <div className="relative w-full h-full flex items-center justify-center">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.35),transparent_30%)]" />
+    <div className="absolute inset-8 bg-gradient-to-b from-white/5 via-red-500/5 to-black/60 rounded-[36px] blur-3xl" />
+    <div className="relative z-10 w-[260px] h-[260px] rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_20px_60px_rgba(239,68,68,0.45)]">
+      <MascotIcon />
+      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-32 h-10 bg-black/30 blur-2xl rounded-full" />
+    </div>
+  </div>
+);
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -219,16 +127,20 @@ const App = () => {
         </div>
       </div>
 
-      <div className="relative w-full h-64 bg-zinc-900/50 rounded-3xl overflow-hidden border border-zinc-800 shadow-inner">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10 pointer-events-none" />
-        <div className="absolute top-4 left-4 z-20">
+      <div className="relative w-full h-64 bg-gradient-to-br from-zinc-900/70 via-zinc-900/20 to-zinc-900/70 rounded-3xl overflow-hidden border border-zinc-800 shadow-inner">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(248,113,113,0.25),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.08),transparent_35%)]" />
+        <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
           <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold text-white border border-white/10">
             LEVEL 5
           </span>
+          <span className="px-3 py-1 bg-red-600/20 text-red-200 border border-red-500/30 rounded-full text-[11px] font-bold flex items-center gap-2 animate-pulse">
+            <Zap size={14} className="text-red-300" />
+            Loyalist
+          </span>
         </div>
-        <MascotCanvas />
-        <div className="absolute bottom-4 left-0 right-0 text-center z-20">
-          <p className="text-zinc-400 text-xs uppercase tracking-widest mb-1">Current Balance</p>
+        <MascotSpotlight />
+        <div className="absolute bottom-5 left-0 right-0 text-center z-20">
+          <p className="text-zinc-300 text-xs uppercase tracking-widest mb-1">Current Balance</p>
           <h2 className="text-4xl font-black text-white tracking-tighter drop-shadow-lg">
             {points.toLocaleString()} <span className="text-red-500 text-2xl">PTS</span>
           </h2>
@@ -438,6 +350,13 @@ const App = () => {
         }
         .animate-fade-in {
           animation: fade-in 0.4s ease-out forwards;
+        }
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-6px) scale(1.02); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 3s ease-in-out infinite;
         }
       `}
       </style>

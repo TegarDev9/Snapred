@@ -39,7 +39,36 @@ export default function Page() {
             <h1>Snapred for Farcaster</h1>
             <p className="small">Shareable frame that links directly to the web, Telegram Mini App, and TON Connect entrypoints.</p>
           </div>
-          <img src="/frame-card.svg" alt="Snapred frame card" width={220} height={120} style={{ borderRadius: 16 }} />
+          <div className="mascot-stack">
+            <div className="mascot-orb">
+              <div className="mascot-glow" />
+              <svg viewBox="0 0 160 160" role="img" aria-label="Snapred mascot" className="mascot-svg">
+                <defs>
+                  <linearGradient id="frameGlow" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#f87171" stopOpacity="0.95" />
+                    <stop offset="60%" stopColor="#ef4444" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="#7f1d1d" stopOpacity="0.85" />
+                  </linearGradient>
+                  <radialGradient id="frameFace" cx="50%" cy="40%" r="60%">
+                    <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
+                    <stop offset="70%" stopColor="#fecdd3" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#f87171" stopOpacity="0.75" />
+                  </radialGradient>
+                </defs>
+                <circle cx="80" cy="80" r="72" fill="url(#frameGlow)" />
+                <circle cx="80" cy="78" r="64" fill="url(#frameFace)" stroke="#fb7185" strokeWidth="6" />
+                <rect x="48" y="62" width="64" height="24" rx="12" fill="#0f172a" opacity="0.9" />
+                <circle cx="62" cy="74" r="10" fill="#22d3ee" />
+                <circle cx="98" cy="74" r="10" fill="#22d3ee" />
+                <circle cx="62" cy="74" r="5" fill="#e0f2fe" />
+                <circle cx="98" cy="74" r="5" fill="#e0f2fe" />
+                <path d="M60 104c12 10 28 10 40 0" stroke="#0f172a" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <path d="M40 80c0-28 18-48 40-48s40 20 40 48" stroke="#fecaca" strokeWidth="6" strokeLinecap="round" fill="none" />
+                <path d="M50 52c6-10 16-16 30-16s24 6 30 16" stroke="#fee2e2" strokeWidth="5" strokeLinecap="round" fill="none" />
+              </svg>
+            </div>
+            <p className="small">Mascot now travels with every experience.</p>
+          </div>
         </div>
 
         <div className="grid">
@@ -52,8 +81,8 @@ export default function Page() {
             <p className="small">Point a Vercel project to <code>apps/farcaster-frame</code> with build command <code>npm run build</code> and output <code>.next</code>.</p>
           </div>
           <div className="card">
-            <h3>Frame metadata</h3>
-            <p className="small">Meta tags advertise the frame image and four buttons without needing a serverful backend.</p>
+            <h3>Mascot-ready metadata</h3>
+            <p className="small">The frame image, links, and mascot art stay in sync across Farcaster, web, Telegram, and mobile screens.</p>
           </div>
         </div>
 
