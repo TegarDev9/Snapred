@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, FlatList, Image, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { SafeAreaView, View, Text, TouchableOpacity, FlatList, StyleSheet, Animated } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { TonConnect } from '@tonconnect/sdk';
@@ -16,6 +16,16 @@ export default function App() {
   const [points, setPoints] = useState(2450);
   const manifestUrl = 'https://snapred-web.vercel.app/tonconnect-manifest.json';
   const connector = useMemo(() => new TonConnect({ manifestUrl }), [manifestUrl]);
+  const mascotBounce = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(mascotBounce, { toValue: -6, duration: 1200, useNativeDriver: true }),
+        Animated.timing(mascotBounce, { toValue: 0, duration: 1200, useNativeDriver: true }),
+      ])
+    ).start();
+  }, [mascotBounce]);
 
   const handleTonConnect = async () => {
     try {
@@ -78,6 +88,20 @@ export default function App() {
             <Text style={styles.balanceLabel}>Current Balance</Text>
             <Text style={styles.balanceValue}>{points.toLocaleString()} PTS</Text>
           </View>
+          <Animated.View
+            style={[
+              styles.mascotBubble,
+              { transform: [{ translateY: mascotBounce }, { scale: mascotBounce.interpolate({ inputRange: [-6, 0], outputRange: [1.02, 1] }) }] },
+            ]}
+          >
+            <View style={styles.mascotOrb}>
+              <View style={styles.mascotGlow} />
+              <View style={styles.mascotFace}>
+                <Ionicons name="planet" size={30} color="#0f172a" />
+                <Text style={styles.mascotText}>SR</Text>
+              </View>
+            </View>
+          </Animated.View>
         </View>
 
         <View style={styles.actionsRow}>
@@ -158,12 +182,57 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: '#1f2937',
+    position: 'relative',
   },
   balanceHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   levelChip: { backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12, fontWeight: '700', fontSize: 12 },
   balanceBody: { paddingVertical: 16 },
   balanceLabel: { color: '#94a3b8', fontSize: 13, marginBottom: 4 },
   balanceValue: { color: '#fff', fontWeight: '900', fontSize: 28 },
+  mascotBubble: {
+    position: 'absolute',
+    right: 12,
+    top: 28,
+    backgroundColor: 'rgba(239,68,68,0.12)',
+    padding: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.35)',
+    shadowColor: '#ef4444',
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 20,
+  },
+  mascotOrb: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  mascotGlow: {
+    position: 'absolute',
+    width: '90%',
+    height: '90%',
+    borderRadius: 999,
+    backgroundColor: 'rgba(248,113,113,0.25)',
+    opacity: 0.8,
+  },
+  mascotFace: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fecdd3',
+  },
+  mascotText: { fontWeight: '900', color: '#0f172a', fontSize: 12, marginTop: 4 },
   actionsRow: { flexDirection: 'row', gap: 12 },
   actionCard: { flex: 1, padding: 14, borderRadius: 18, gap: 8 },
   lightCard: { backgroundColor: '#e5e7eb' },

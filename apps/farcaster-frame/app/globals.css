@@ -39,6 +39,40 @@ a {
   gap: 16px;
 }
 
+.mascot-stack {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.mascot-orb {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  overflow: hidden;
+  animation: float 4s ease-in-out infinite;
+  box-shadow: 0 20px 80px rgba(239, 68, 68, 0.35);
+}
+
+.mascot-svg {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  z-index: 1;
+}
+
+.mascot-glow {
+  position: absolute;
+  inset: 18px;
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.45), transparent 70%);
+  filter: blur(12px);
+}
+
 .badge {
   padding: 8px 14px;
   background: rgba(239, 68, 68, 0.12);
@@ -101,4 +135,14 @@ p {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+  }
 }

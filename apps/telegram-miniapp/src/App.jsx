@@ -39,12 +39,41 @@ const App = () => {
       {tab === 'home' && (
         <main className="miniapp__body">
           <div className="miniapp__hero">
-            <div className="hero__tag">LEVEL 5</div>
+            <div className="hero__content">
+              <div className="hero__tag">LEVEL 5</div>
             <div className="hero__value">
               <div className="muted">Snap balance</div>
               <div className="big">{points.toLocaleString()} pts</div>
             </div>
           </div>
+          <div className="mascot-chip">
+            <div className="glow" />
+            <svg viewBox="0 0 160 160" role="img" aria-label="Snapred mascot">
+              <defs>
+                <linearGradient id="tgGlow" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#f87171" stopOpacity="0.95" />
+                  <stop offset="60%" stopColor="#ef4444" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#7f1d1d" stopOpacity="0.85" />
+                </linearGradient>
+                <radialGradient id="tgFace" cx="50%" cy="40%" r="60%">
+                  <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
+                  <stop offset="70%" stopColor="#fecdd3" stopOpacity="0.85" />
+                  <stop offset="100%" stopColor="#f87171" stopOpacity="0.75" />
+                </radialGradient>
+              </defs>
+              <circle cx="80" cy="80" r="72" fill="url(#tgGlow)" />
+              <circle cx="80" cy="78" r="64" fill="url(#tgFace)" stroke="#fb7185" strokeWidth="6" />
+              <rect x="48" y="62" width="64" height="24" rx="12" fill="#0f172a" opacity="0.9" />
+              <circle cx="62" cy="74" r="10" fill="#22d3ee" />
+              <circle cx="98" cy="74" r="10" fill="#22d3ee" />
+              <circle cx="62" cy="74" r="5" fill="#e0f2fe" />
+              <circle cx="98" cy="74" r="5" fill="#e0f2fe" />
+              <path d="M60 104c12 10 28 10 40 0" stroke="#0f172a" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              <path d="M40 80c0-28 18-48 40-48s40 20 40 48" stroke="#fecaca" strokeWidth="6" strokeLinecap="round" fill="none" />
+              <path d="M50 52c6-10 16-16 30-16s24 6 30 16" stroke="#fee2e2" strokeWidth="5" strokeLinecap="round" fill="none" />
+            </svg>
+          </div>
+        </div>
 
           <div className="miniapp__actions">
             <button className="miniapp__tile" onClick={() => setTab('rewards')}>
