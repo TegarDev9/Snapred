@@ -1,0 +1,7 @@
+{
+  "name": "snapred",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
