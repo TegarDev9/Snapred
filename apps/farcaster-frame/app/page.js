@@ -1,6 +1,7 @@
 const BASE_URL = process.env.NEXT_PUBLIC_FRAME_BASE_URL || 'https://snapred-farcaster.vercel.app';
 const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL || 'https://snapred-web.vercel.app';
 const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL || 'https://t.me/your_snapred_mini_app';
+const SCAN_TARGET = `${WEB_URL}/#scanner`;
 
 export const metadata = {
   metadataBase: new URL(BASE_URL),
@@ -22,7 +23,7 @@ export const metadata = {
     'fc:frame:button:2:target': TELEGRAM_URL,
     'fc:frame:button:3': 'Scan Receipt',
     'fc:frame:button:3:action': 'link',
-    'fc:frame:button:3:target': `${WEB_URL}/#scanner`,
+    'fc:frame:button:3:target': SCAN_TARGET,
     'fc:frame:button:4': 'Connect TON',
     'fc:frame:button:4:action': 'link',
     'fc:frame:button:4:target': `${WEB_URL}/#ton-connect`,
@@ -38,6 +39,11 @@ export default function Page() {
             <div className="badge">FARCASTER FRAME</div>
             <h1>Snapred for Farcaster</h1>
             <p className="small">Shareable frame that links directly to the web, Telegram Mini App, and TON Connect entrypoints.</p>
+            <div className="pill-row">
+              <span className="pill green">Navbar online</span>
+              <span className="pill amber">Scanner ready</span>
+              <span className="pill">Points synced</span>
+            </div>
           </div>
           <div className="mascot-stack">
             <div className="mascot-orb">
@@ -75,6 +81,9 @@ export default function Page() {
           <div className="card">
             <h3>Deep links configured</h3>
             <p className="small">Buttons target the Vercel-hosted web app, Telegram Mini App, and TON connect screen. Override via environment variables.</p>
+            <a className="cta" href={SCAN_TARGET}>
+              Open scanner nav
+            </a>
           </div>
           <div className="card">
             <h3>Instant deploy</h3>
@@ -83,6 +92,15 @@ export default function Page() {
           <div className="card">
             <h3>Mascot-ready metadata</h3>
             <p className="small">The frame image, links, and mascot art stay in sync across Farcaster, web, Telegram, and mobile screens.</p>
+          </div>
+          <div className="card">
+            <h3>Navbar + scanner parity</h3>
+            <p className="small">Mini app, mobile, and web now share the same scanner CTA and top-level nav status so users never lose context.</p>
+            <div className="pill-row">
+              <span className="pill green">Web</span>
+              <span className="pill green">Telegram</span>
+              <span className="pill green">Mobile</span>
+            </div>
           </div>
         </div>
 

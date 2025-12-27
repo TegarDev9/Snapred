@@ -63,6 +63,8 @@ const App = () => {
   const [selectedReward, setSelectedReward] = useState(null);
   const [aiStatus, setAiStatus] = useState('syncing');
   const [serverLatency, setServerLatency] = useState(32);
+  const [scanStatus, setScanStatus] = useState('idle');
+  const [lastScan, setLastScan] = useState(null);
 
   useEffect(() => {
     const statuses = ['online', 'syncing', 'optimizing'];
@@ -195,6 +197,11 @@ const App = () => {
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <span className="font-semibold">OpenRouter AI</span>
             <span className="text-[11px] text-zinc-400">{aiStatus}</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white">
+            <span className={`w-2 h-2 rounded-full ${scanStatus === 'processing' ? 'bg-amber-300 animate-pulse' : 'bg-green-400'}`} />
+            <span className="font-semibold">Scanner</span>
+            <span className="text-[11px] text-zinc-400 capitalize">{scanStatus}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white">
             <ScanLine size={14} />
@@ -412,6 +419,23 @@ const App = () => {
               <p className="text-[11px] text-zinc-500">Progress: {quest.progress}</p>
             </div>
           ))}
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-white font-bold">Terakhir scan</h4>
+            <span className="text-[11px] text-zinc-500">Live status</span>
+          </div>
+          {lastScan ? (
+            <div className="p-3 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between">
+              <div>
+                <p className="text-white font-semibold">{lastScan.store}</p>
+                <p className="text-[11px] text-zinc-500">{lastScan.time}</p>
+              </div>
+              <span className="text-green-400 bg-green-500/10 px-3 py-1 rounded-full text-xs font-bold">+{lastScan.points} pts</span>
+            </div>
+          ) : (
+            <p className="text-zinc-500 text-sm">Belum ada struk yang dipindai. Tekan tombol scan untuk mulai.</p>
+          )}
         </div>
       </div>
     </div>
@@ -746,12 +770,21 @@ const App = () => {
         </div>
 
         <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
-          <button
-            onClick={() => setShowScanner(false)}
-            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setScanStatus('idle');
+                setShowScanner(false);
+              }}
+              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white"
+            >
+              <X size={20} />
+            </button>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 border border-white/5 text-xs text-white">
+              <ScanLine size={14} />
+              <span className="font-semibold">Navbar scanner</span>
+            </div>
+          </div>
           <span className="text-white font-bold bg-black/40 px-4 py-1 rounded-full backdrop-blur-md text-sm">SCAN RECEIPT</span>
           <button className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white">
             <Zap size={20} />
@@ -769,9 +802,12 @@ const App = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-32 left-0 right-0 text-center">
+        <div className="absolute bottom-32 left-0 right-0 text-center space-y-2">
           <p className="text-white/80 font-medium text-sm bg-black/50 inline-block px-4 py-2 rounded-full backdrop-blur-sm">
             Align receipt within the frame
+          </p>
+          <p className="text-xs text-zinc-300 bg-black/40 inline-block px-3 py-1 rounded-full border border-white/5">
+            Status: {scanStatus === 'processing' ? 'Memproses struk...' : 'Siap memindai'}
           </p>
         </div>
       </div>
@@ -787,8 +823,16 @@ const App = () => {
 
         <button
           onClick={() => {
-            setPoints((p) => p + 150);
-            setShowScanner(false);
+            setScanStatus('processing');
+            setTimeout(() => {
+              setPoints((p) => p + 150);
+              setLastScan({ store: 'Hypermart', points: 150, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) });
+              setScanStatus('success');
+              setTimeout(() => {
+                setShowScanner(false);
+                setScanStatus('idle');
+              }, 600);
+            }, 800);
           }}
           className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center relative group"
         >

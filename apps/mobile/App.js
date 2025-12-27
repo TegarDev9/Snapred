@@ -14,6 +14,9 @@ const recentScans = [
 export default function App() {
   const [tab, setTab] = useState('home');
   const [points, setPoints] = useState(2450);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scanStatus, setScanStatus] = useState('idle');
+  const [lastScan, setLastScan] = useState(null);
   const manifestUrl = 'https://snapred-web.vercel.app/tonconnect-manifest.json';
   const connector = useMemo(() => new TonConnect({ manifestUrl }), [manifestUrl]);
   const mascotBounce = useRef(new Animated.Value(0)).current;
@@ -70,13 +73,21 @@ export default function App() {
               <Text style={styles.brandSubtitle}>Hello, Alex!</Text>
             </View>
           </View>
-          <TouchableOpacity style={[styles.iconBtn, styles.connectBtn]} onPress={handleTonConnect}>
-            <Text style={styles.connectText}>Connect TON</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="flash" size={18} color="#fff" />
-            <View style={styles.iconDot} />
-          </TouchableOpacity>
+          <View style={styles.headerRight}>
+            <View style={[styles.chip, scanStatus === 'processing' ? styles.chipAmber : styles.chipGreen]}>
+              <Feather name="camera" size={14} color={scanStatus === 'processing' ? '#f59e0b' : '#22c55e'} />
+              <Text style={[styles.chipText, scanStatus === 'processing' ? styles.chipAmberText : styles.chipGreenText]}>
+                {scanStatus === 'processing' ? 'Memproses' : 'Siap scan'}
+              </Text>
+            </View>
+            <TouchableOpacity style={[styles.iconBtn, styles.connectBtn]} onPress={handleTonConnect}>
+              <Text style={styles.connectText}>Connect TON</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconBtn}>
+              <Ionicons name="flash" size={18} color="#fff" />
+              <View style={styles.iconDot} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.balanceCard}>
@@ -110,11 +121,29 @@ export default function App() {
             <Text style={styles.actionLabel}>Redeem</Text>
             <Text style={styles.actionTitle}>Rewards</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionCard, styles.redCard]} onPress={() => setPoints(points + 150)}>
+          <TouchableOpacity
+            style={[styles.actionCard, styles.redCard]}
+            onPress={() => {
+              setShowScanner(true);
+            }}
+          >
             <Feather name="camera" size={20} color="#fff" />
             <Text style={[styles.actionLabel, styles.redLabel]}>Camera</Text>
             <Text style={[styles.actionTitle, styles.whiteText]}>Scan Receipt</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.lastScanCard}>
+          <View>
+            <Text style={styles.sectionLabel}>Terakhir scan</Text>
+            <Text style={styles.lastScanTitle}>{lastScan?.store || 'Belum ada struk'}</Text>
+            <Text style={styles.sectionCaption}>{lastScan?.time || 'Buka scanner untuk mulai'}</Text>
+          </View>
+          <View style={[styles.lastScanBadge, scanStatus === 'processing' ? styles.badgeAmber : styles.badgeGreen]}>
+            <Text style={styles.lastScanBadgeText}>
+              {scanStatus === 'processing' ? 'Memproses' : lastScan ? `+${lastScan.points} pts` : 'Siap'}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.sectionHeader}>
@@ -142,6 +171,66 @@ export default function App() {
           </TouchableOpacity>
         ))}
       </View>
+
+      {showScanner && (
+        <View style={styles.scannerOverlay}>
+          <View style={styles.scannerCard}>
+            <View style={styles.scannerHeader}>
+              <TouchableOpacity
+                style={styles.scannerIconBtn}
+                onPress={() => {
+                  setShowScanner(false);
+                  setScanStatus('idle');
+                }}
+              >
+                <Feather name="x" size={18} color="#e2e8f0" />
+              </TouchableOpacity>
+              <View style={[styles.chip, scanStatus === 'processing' ? styles.chipAmber : styles.chipGreen]}>
+                <Feather name="camera" size={14} color={scanStatus === 'processing' ? '#f59e0b' : '#22c55e'} />
+                <Text style={[styles.chipText, scanStatus === 'processing' ? styles.chipAmberText : styles.chipGreenText]}>
+                  {scanStatus === 'processing' ? 'Memproses' : 'Siap memindai'}
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.scannerIconBtn}>
+                <Feather name="zap" size={18} color="#e2e8f0" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.scannerViewport}>
+              <View style={styles.scannerFrame} />
+              <Text style={styles.scannerStatus}>
+                {scanStatus === 'processing' ? 'Memproses struk...' : 'Arahkan kamera ke struk belanja'}
+              </Text>
+            </View>
+
+            <View style={styles.scannerActions}>
+              <TouchableOpacity style={styles.scannerGhost}><Text style={styles.scannerGhostText}>Galeri</Text></TouchableOpacity>
+              <TouchableOpacity
+                style={styles.scanCta}
+                onPress={() => {
+                  setScanStatus('processing');
+                  setTimeout(() => {
+                    setPoints((p) => p + 150);
+                    setLastScan({
+                      store: 'Hypermart',
+                      points: 150,
+                      time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                    });
+                    setScanStatus('success');
+                    setTimeout(() => {
+                      setShowScanner(false);
+                      setScanStatus('idle');
+                    }, 600);
+                  }, 900);
+                }}
+              >
+                <Text style={styles.scanCtaText}>Scan Struk</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.scannerGhost}><Text style={styles.scannerGhostText}>Auto</Text></TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -233,6 +322,23 @@ const styles = StyleSheet.create({
     borderColor: '#fecdd3',
   },
   mascotText: { fontWeight: '900', color: '#0f172a', fontSize: 12, marginTop: 4 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    backgroundColor: '#0f172a',
+  },
+  chipText: { fontWeight: '800', fontSize: 12 },
+  chipGreen: { backgroundColor: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.3)' },
+  chipAmber: { backgroundColor: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.3)' },
+  chipGreenText: { color: '#22c55e' },
+  chipAmberText: { color: '#f59e0b' },
   actionsRow: { flexDirection: 'row', gap: 12 },
   actionCard: { flex: 1, padding: 14, borderRadius: 18, gap: 8 },
   lightCard: { backgroundColor: '#e5e7eb' },
@@ -241,6 +347,31 @@ const styles = StyleSheet.create({
   actionTitle: { fontSize: 18, fontWeight: '800', color: '#0f172a' },
   redLabel: { color: '#fee2e2' },
   whiteText: { color: '#fff' },
+  lastScanCard: {
+    marginTop: 8,
+    backgroundColor: '#0b1220',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    padding: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sectionLabel: { color: '#94a3b8', fontSize: 12, marginBottom: 2 },
+  lastScanTitle: { color: '#e2e8f0', fontWeight: '800', fontSize: 16 },
+  sectionCaption: { color: '#94a3b8', fontSize: 12 },
+  lastScanBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    backgroundColor: '#0f172a',
+  },
+  lastScanBadgeText: { fontWeight: '800', color: '#e2e8f0', fontSize: 12, textTransform: 'uppercase' },
+  badgeGreen: { backgroundColor: 'rgba(34,197,94,0.12)', borderColor: 'rgba(34,197,94,0.3)' },
+  badgeAmber: { backgroundColor: 'rgba(245,158,11,0.12)', borderColor: 'rgba(245,158,11,0.3)' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
   sectionTitle: { color: '#fff', fontWeight: '800', fontSize: 16 },
   viewAll: { color: '#f87171', fontWeight: '700', fontSize: 12 },
@@ -275,4 +406,91 @@ const styles = StyleSheet.create({
   navItem: { alignItems: 'center', justifyContent: 'center' },
   navLabel: { color: '#94a3b8', fontWeight: '800', fontSize: 11 },
   navLabelActive: { color: '#ef4444' },
+  scannerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  scannerCard: {
+    width: '100%',
+    backgroundColor: '#0b0c11',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    padding: 16,
+    gap: 14,
+  },
+  scannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  scannerIconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0f172a',
+  },
+  scannerViewport: {
+    height: 260,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.35)',
+    backgroundColor: 'rgba(239,68,68,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scannerFrame: {
+    width: 200,
+    height: 200,
+    borderRadius: 18,
+    borderWidth: 3,
+    borderColor: 'rgba(239,68,68,0.9)',
+  },
+  scannerStatus: {
+    position: 'absolute',
+    bottom: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(15,23,42,0.9)',
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    color: '#e2e8f0',
+    fontWeight: '700',
+  },
+  scannerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  scannerGhost: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    backgroundColor: '#0f172a',
+  },
+  scannerGhostText: { color: '#e2e8f0', fontWeight: '800' },
+  scanCta: {
+    flex: 1.2,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: '#ef4444',
+  },
+  scanCtaText: { color: '#fff', fontWeight: '900', letterSpacing: 0.2 },
 });
