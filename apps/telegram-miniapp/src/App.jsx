@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Home, Gift, History, User, ScanLine, Trophy, ChevronRight } from 'lucide-react';
+import { Home, Gift, History, User, ScanLine, Trophy, ChevronRight, X, Zap } from 'lucide-react';
 import { TonConnectButton } from '@tonconnect/ui-react';
 
 const scans = [
@@ -10,6 +10,9 @@ const scans = [
 const App = () => {
   const [tab, setTab] = useState('home');
   const [points, setPoints] = useState(2450);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scanStatus, setScanStatus] = useState('idle');
+  const [lastScan, setLastScan] = useState(null);
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
@@ -31,6 +34,10 @@ const App = () => {
           </div>
         </div>
         <div className="miniapp__actions">
+          <div className={`chip ${scanStatus === 'processing' ? 'chip--amber' : 'chip--green'}`}>
+            <ScanLine size={14} />
+            <span>{scanStatus === 'processing' ? 'Memproses' : 'Siap scan'}</span>
+          </div>
           <TonConnectButton className="miniapp__ton" />
           <div className="miniapp__badge">{points.toLocaleString()} pts</div>
         </div>
@@ -86,7 +93,7 @@ const App = () => {
             <button
               className="miniapp__tile primary"
               onClick={() => {
-                setPoints((p) => p + 150);
+                setShowScanner(true);
               }}
             >
               <ScanLine size={18} />
@@ -103,6 +110,16 @@ const App = () => {
               <button className="ghost">
                 VIEW ALL <ChevronRight size={14} />
               </button>
+            </div>
+            <div className="live-card">
+              <div>
+                <div className="muted tiny">Terakhir scan</div>
+                <div className="live-title">{lastScan?.store || 'Belum ada struk'}</div>
+                <div className="muted tiny">{lastScan?.time || 'Tap scan untuk mulai'}</div>
+              </div>
+              <div className={`live-badge ${scanStatus === 'processing' ? 'amber' : 'green'}`}>
+                {scanStatus === 'processing' ? 'Memproses' : lastScan ? `+${lastScan.points} pts` : 'Siap'}
+              </div>
             </div>
             <div className="list">
               {scans.map((item, idx) => (
@@ -154,6 +171,61 @@ const App = () => {
           )
         )}
       </footer>
+
+      {showScanner && (
+        <div className="scanner">
+          <div className="scanner__chrome">
+            <div className="scanner__top">
+              <button
+                className="icon-btn"
+                onClick={() => {
+                  setShowScanner(false);
+                  setScanStatus('idle');
+                }}
+              >
+                <X size={18} />
+              </button>
+              <div className={`chip ${scanStatus === 'processing' ? 'chip--amber' : 'chip--green'}`}>
+                <ScanLine size={14} /> {scanStatus === 'processing' ? 'Memproses' : 'Siap memindai'}
+              </div>
+              <button className="icon-btn">
+                <Zap size={18} />
+              </button>
+            </div>
+
+            <div className="scanner__view">
+              <div className="scanner__frame" />
+              <div className="scanner__status">{scanStatus === 'processing' ? 'Memproses struk...' : 'Arahkan ke struk'}</div>
+            </div>
+
+            <div className="scanner__actions">
+              <button className="secondary">Galeri</button>
+              <button
+                className="primary"
+                onClick={() => {
+                  setScanStatus('processing');
+                  setTimeout(() => {
+                    setPoints((p) => p + 150);
+                    setLastScan({
+                      store: 'Hypermart',
+                      points: 150,
+                      time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                    });
+                    setScanStatus('success');
+                    setTimeout(() => {
+                      setShowScanner(false);
+                      setScanStatus('idle');
+                    }, 600);
+                  }, 900);
+                }}
+              >
+                Scan Struk
+              </button>
+              <button className="secondary">Auto</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
