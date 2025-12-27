@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Camera,
   Gift,
@@ -61,6 +61,18 @@ const App = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [points, setPoints] = useState(2450);
   const [selectedReward, setSelectedReward] = useState(null);
+  const [aiStatus, setAiStatus] = useState('syncing');
+  const [serverLatency, setServerLatency] = useState(32);
+
+  useEffect(() => {
+    const statuses = ['online', 'syncing', 'optimizing'];
+    const interval = setInterval(() => {
+      setAiStatus(statuses[Math.floor(Math.random() * statuses.length)]);
+      setServerLatency((latency) => Math.max(18, Math.min(58, latency + (Math.random() * 12 - 6))));
+    }, 4800);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const activityFeed = useMemo(
     () => [
@@ -162,6 +174,48 @@ const App = () => {
       },
     ],
     [],
+  );
+
+  const AIPoweredNavbar = () => (
+    <div className="sticky top-0 z-30 bg-gradient-to-b from-black via-black/80 to-transparent border-b border-white/5">
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl flex items-center justify-center text-white font-black italic shadow-lg shadow-red-800/40">
+            SR
+          </div>
+          <div>
+            <p className="text-[11px] tracking-[0.2em] text-red-300 font-bold uppercase">Scanner UI • Belanja</p>
+            <h2 className="text-white font-black text-xl leading-tight">Modern Stroke Navigation</h2>
+            <p className="text-zinc-500 text-xs">Server-side OpenRouter AI routing untuk rekomendasi cepat.</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 items-center md:justify-end">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="font-semibold">OpenRouter AI</span>
+            <span className="text-[11px] text-zinc-400">{aiStatus}</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white">
+            <ScanLine size={14} />
+            <span className="font-semibold">Server side</span>
+            <span className="text-[11px] text-zinc-400">{Math.round(serverLatency)} ms</span>
+          </div>
+          <button
+            onClick={() => setShowScanner(true)}
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-lg shadow-red-800/30 hover:from-red-500 hover:to-red-400"
+          >
+            <Camera size={16} /> Mulai Scan
+          </button>
+          <button
+            onClick={() => setActiveTab('rewards')}
+            className="px-3 py-2 bg-white text-black rounded-full text-xs font-bold hover:bg-zinc-200"
+          >
+            Rewards
+          </button>
+        </div>
+      </div>
+    </div>
   );
 
   const Navigation = () => (
@@ -777,6 +831,8 @@ const App = () => {
       </style>
 
       <div className="max-w-6xl mx-auto h-screen relative bg-zinc-950 overflow-y-auto scrollbar-hide shadow-2xl shadow-zinc-900 rounded-[28px] border border-zinc-900/70">
+        <AIPoweredNavbar />
+
         {activeTab === 'home' && <HomeTab />}
         {activeTab === 'rewards' && <RewardsTab />}
         {activeTab === 'activity' && <ActivityTab />}
