@@ -8,8 +8,12 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #000;
+  background: radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.08), transparent 25%),
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.04), transparent 20%),
+    #000;
   min-height: 100vh;
+  color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
 }
 
 button {
@@ -18,4 +22,27 @@ button {
 
 #root {
   min-height: 100vh;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.glass-surface {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+}
+
+@media (min-width: 1024px) {
+  body {
+    background: radial-gradient(circle at 10% 10%, rgba(239, 68, 68, 0.12), transparent 28%),
+      radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.08), transparent 25%),
+      radial-gradient(circle at 50% 80%, rgba(248, 113, 113, 0.06), transparent 30%),
+      #000;
+  }
 }
